@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Profile • EchoStream</title>
+
+    <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body>
+
+<!-- ================= TOP BAR ================= -->
+<div class="topbar">
+    <div class="topbar-inner">
+        <div class="brand">EchoStream</div>
+    </div>
+</div>
+
+<!-- ================= PAGE WRAP ================= -->
+<div class="wrap">
+
+    <!-- PROFILE HEADER -->
+    <div class="card">
+        <div class="display-name" id="displayName">Loading...</div>
+        <div class="username" id="username"></div>
+        <div class="bio" id="bio"></div>
+
+        <div class="stats">
+            <div><b id="followers">0</b><br/>Followers</div>
+            <div><b id="following">0</b><br/>Following</div>
+        </div>
+    </div>
+
+    <!-- VERIFICATION -->
+    <div class="card">
+        <div style="font-weight:800">Verification</div>
+        <div class="smallMuted" id="verifyStatus">Loading...</div>
+
+        <div class="btnRow">
+            <button id="requestVerifyBtn" class="btn primary">
+                Request verification
+            </button>
+
+            <button id="cancelVerifyBtn" class="btn danger" style="display:none">
+                Cancel request
+            </button>
+        </div>
+
+        <div class="smallMuted" id="verifyMsg"></div>
+    </div>
+
+    <!-- USER POSTS -->
+    <div class="card">
+        <div style="font-weight:800">Your posts</div>
+        <div id="userPosts" class="posts"></div>
+    </div>
+
+</div>
+
+<!-- ================= TOAST ================= -->
+<div class="toast" id="toast"></div>
+
+<!-- ================= MODAL ================= -->
+<div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" id="modal"></div>
+</div>
+
+<!-- ================= SCRIPTS ================= -->
+<!-- ⚠️ ONLY profile.js (it imports firebase internally) -->
+<script type="module" src="./profile.js"></script>
+
+</body>
+</html>
