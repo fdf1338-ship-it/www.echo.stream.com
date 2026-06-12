@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body>
+<div class="topbar">
+    <div class="topbar-inner">
+        <button class="btn" onclick="history.back()">← Back</button>
+        <div class="brand">Edit Profile</div>
+    </div>
+</div>
+
+<div class="wrap">
+    <div class="card">
+        <label class="muted small">Display name</label>
+        <input id="nameInput" placeholder="Your name" />
+
+        <label class="muted small" style="margin-top:12px">Profile photo</label>
+        <input type="file" id="photoInput" accept="image/*" />
+
+        <button class="btn primary" id="saveBtn" style="margin-top:16px">
+            Save changes
+        </button>
+
+        <div id="msg" class="muted small" style="margin-top:10px"></div>
+    </div>
+</div>
+
+<script type="module" src="./edit-profile.js"></script>
+</body>
+</html>
