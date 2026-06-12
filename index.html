@@ -1,0 +1,2107 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>echostream</title>
+
+    <style>
+        :root{
+          --bg:#0f1115;
+          --panel:#141822;
+          --card:#171c27;
+          --text:#e9edf7;
+          --muted:#9aa3b2;
+          --line:#273047;
+          --blue:#4f7cff;
+          --red:#ff4d4d;
+          --green:#28c76f;
+          --shadow:0 10px 30px rgba(0,0,0,.35);
+          --radius:18px;
+        }
+        *{box-sizing:border-box}
+        body{
+          margin:0;
+          font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial;
+          background:linear-gradient(180deg,#0b0d12 0%, #0f1115 60%, #0b0d12 100%);
+          color:var(--text);
+          min-height:100vh;
+          overflow-x:hidden;
+        }
+        a{color:inherit;text-decoration:none}
+        .wrap{max-width:920px;margin:0 auto;padding:14px 14px 90px}
+        .topbar{
+          position:sticky;top:0;z-index:10;
+          background:rgba(15,17,21,.92);
+          backdrop-filter:blur(10px);
+          border-bottom:1px solid rgba(39,48,71,.55);
+        }
+        .topbar-inner{max-width:920px;margin:0 auto;padding:12px 14px;display:flex;align-items:center;gap:10px}
+        .burger,.gear{
+          width:42px;height:42px;border-radius:14px;
+          display:grid;place-items:center;
+          border:1px solid rgba(39,48,71,.8);
+          background:rgba(20,24,34,.8);
+          cursor:pointer;
+          user-select:none;
+        }
+        .brand{font-weight:900;letter-spacing:.35px}
+        .spacer{flex:1}
+        .icon{font-size:18px;opacity:.95}
+
+        .panel{
+          background:rgba(20,24,34,.75);
+          border:1px solid rgba(39,48,71,.75);
+          border-radius:var(--radius);
+          box-shadow:var(--shadow);
+        }
+        .card{
+          background:rgba(23,28,39,.85);
+          border:1px solid rgba(39,48,71,.75);
+          border-radius:var(--radius);
+          box-shadow:var(--shadow);
+          padding:14px;
+        }
+        .row{display:flex;gap:12px;align-items:center}
+        .col{display:flex;flex-direction:column;gap:10px}
+        .muted{color:var(--muted)}
+        .btn{
+          border:none;cursor:pointer;
+          padding:12px 14px;border-radius:14px;
+          font-weight:800;
+          background:rgba(39,48,71,.7);
+          color:var(--text);
+          border:1px solid rgba(39,48,71,.85);
+        }
+        .btn.primary{background:var(--blue);border-color:rgba(79,124,255,.4)}
+        .btn.danger{background:rgba(255,77,77,.2);border-color:rgba(255,77,77,.4);color:#ffd6d6}
+        .btn.success{background:rgba(40,199,111,.2);border-color:rgba(40,199,111,.4);color:#d8ffe9}
+        .btn:disabled{opacity:.5;cursor:not-allowed}
+        input, textarea{
+          width:100%;
+          background:rgba(20,24,34,.75);
+          border:1px solid rgba(39,48,71,.85);
+          color:var(--text);
+          border-radius:14px;
+          padding:12px 12px;
+          outline:none;
+        }
+        textarea{min-height:92px;resize:vertical}
+        .small{font-size:12px}
+        .title{font-size:16px;font-weight:900;margin:0}
+        .h1{font-size:22px;font-weight:950;margin:0}
+        .divider{height:1px;background:rgba(39,48,71,.7);margin:10px 0}
+        .pill{
+          padding:5px 10px;border-radius:999px;
+          background:rgba(39,48,71,.6);
+          border:1px solid rgba(39,48,71,.85);
+          font-size:12px;color:var(--muted);
+          display:inline-flex;align-items:center;gap:6px;
+        }
+        .pill.clickable{cursor:pointer}
+        .pill.clickable:hover{filter:brightness(1.1)}
+        .verified{
+          display:inline-grid;place-items:center;
+          width:16px;height:16px;border-radius:999px;
+          background:rgba(79,124,255,.95);
+          color:white;font-size:11px;font-weight:900;
+          margin-left:6px;
+        }
+        .avatar{
+          width:44px;height:44px;border-radius:999px;
+          background:rgba(39,48,71,.8);
+          border:1px solid rgba(39,48,71,.9);
+          display:grid;place-items:center;
+          overflow:hidden;
+          flex:0 0 auto;
+          user-select:none;
+        }
+        .avatar img{width:100%;height:100%;object-fit:cover}
+
+        .post-actions{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap}
+        .action{
+          display:inline-flex;gap:8px;align-items:center;
+          padding:8px 10px;border-radius:999px;
+          border:1px solid rgba(39,48,71,.9);
+          background:rgba(20,24,34,.65);
+          cursor:pointer;
+          user-select:none;
+          white-space:nowrap;
+        }
+        .action.active{border-color:rgba(79,124,255,.7); background:rgba(79,124,255,.12)}
+        .grid{display:grid;gap:12px}
+        .two{grid-template-columns:1fr 1fr}
+        @media (max-width:860px){.two{grid-template-columns:1fr}}
+
+        .bottomnav{
+          position:fixed;left:0;right:0;bottom:0;z-index:20;
+          background:rgba(15,17,21,.92);
+          backdrop-filter:blur(10px);
+          border-top:1px solid rgba(39,48,71,.55);
+        }
+        .bottomnav-inner{max-width:920px;margin:0 auto;padding:10px 10px;display:flex;justify-content:space-between}
+        .tab{
+          flex:1;
+          display:flex;flex-direction:column;
+          align-items:center;gap:6px;
+          padding:8px 0;border-radius:14px;
+          color:var(--muted);
+          cursor:pointer;
+          user-select:none;
+        }
+        .tab.active{color:var(--text); background:rgba(39,48,71,.35)}
+        .tab .ico{font-size:18px}
+
+        .drawer-backdrop{
+          position:fixed;inset:0;z-index:30;
+          background:rgba(0,0,0,.55);
+          display:none;
+        }
+        .drawer{
+          position:fixed;top:0;bottom:0;left:0;z-index:31;
+          width:min(320px,86vw);
+          background:rgba(20,24,34,.96);
+          border-right:1px solid rgba(39,48,71,.85);
+          padding:14px;
+          transform:translateX(-105%);
+          transition:.22s ease;
+          overflow:auto;
+        }
+        .drawer.open{transform:translateX(0)}
+        .drawer-backdrop.open{display:block}
+        .drawer .item{
+          padding:12px;border-radius:14px;
+          border:1px solid rgba(39,48,71,.8);
+          background:rgba(23,28,39,.6);
+          cursor:pointer;
+          display:flex;align-items:center;gap:10px;
+          margin-bottom:10px;
+          color:var(--text);
+          user-select:none;
+        }
+        .drawer .item .ico{width:22px;text-align:center}
+
+        .toast{
+          position:fixed;left:50%;transform:translateX(-50%);
+          bottom:92px;z-index:50;
+          background:rgba(23,28,39,.95);
+          border:1px solid rgba(39,48,71,.85);
+          padding:10px 12px;border-radius:14px;
+          box-shadow:var(--shadow);
+          display:none;
+          max-width:min(680px,92vw);
+        }
+        .toast.show{display:block}
+
+        .post-img{
+          width:100%;margin-top:10px;border-radius:16px;
+          border:1px solid rgba(39,48,71,.85);
+          overflow:hidden;
+          background:#0b0d12;
+        }
+        .post-img img{width:100%;display:block}
+
+        .comment{
+          padding:10px;border-radius:14px;
+          background:rgba(20,24,34,.55);
+          border:1px solid rgba(39,48,71,.75);
+          margin-top:8px;
+        }
+
+        .hint{font-size:12px;color:var(--muted);margin-top:6px}
+        .linkish{cursor:pointer}
+        .linkish:hover{text-decoration:underline}
+
+        .modal-backdrop{
+          position:fixed;inset:0;z-index:60;
+          background:rgba(0,0,0,.6);
+          display:none;
+          align-items:center;
+          justify-content:center;
+          padding:16px;
+        }
+        .modal-backdrop.open{display:flex}
+        .modal{
+          width:min(720px,94vw);
+          max-height:min(80vh,720px);
+          overflow:auto;
+          background:rgba(20,24,34,.98);
+          border:1px solid rgba(39,48,71,.85);
+          border-radius:18px;
+          box-shadow:var(--shadow);
+          padding:14px;
+        }
+
+        #fab{
+          position:fixed; right:20px; bottom:105px; z-index:40;
+          width:64px; height:64px; border-radius:999px;
+          display:grid; place-items:center;
+          font-size:32px; font-weight:900;
+          box-shadow:0 12px 40px rgba(0,0,0,.45);
+        }
+
+        /* 3-dot menu */
+        .postTopRow{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+        .menuWrap{position:relative}
+        .moreBtn{
+          width:40px;height:40px;border-radius:14px;
+          border:1px solid rgba(39,48,71,.85);
+          background:rgba(20,24,34,.65);
+          color:var(--text);
+          cursor:pointer;
+          font-weight:900;
+          line-height:0;
+        }
+        .menu{
+          position:absolute; right:0; top:44px; z-index:80;
+          min-width:190px;
+          border-radius:14px;
+          border:1px solid rgba(39,48,71,.9);
+          background:rgba(20,24,34,.98);
+          overflow:hidden;
+          box-shadow:var(--shadow);
+          display:none;
+        }
+        .menu.open{display:block}
+        .menu button{
+          width:100%;
+          text-align:left;
+          background:transparent;
+          border:0;
+          color:var(--text);
+          padding:10px 12px;
+          cursor:pointer;
+          font-weight:800;
+        }
+        .menu button:hover{background:rgba(39,48,71,.35)}
+        .menu .danger{color:#ffd6d6}
+    </style>
+</head>
+
+<body>
+<div class="topbar">
+    <div class="topbar-inner">
+        <div class="burger" id="btnDrawer"><span class="icon">☰</span></div>
+        <div class="brand">EchoStream</div>
+        <div class="spacer"></div>
+        <div class="gear" id="btnTopSettings"><span class="icon">⚙</span></div>
+    </div>
+</div>
+
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<div class="drawer" id="drawer">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+        <div class="title">Menu</div>
+        <button class="btn" id="btnCloseDrawer" style="padding:8px 10px;border-radius:12px">✕</button>
+    </div>
+
+    <div class="item" data-go="feed"><div class="ico">🏠</div><div>Feed</div></div>
+    <div class="item" data-go="search"><div class="ico">🔎</div><div>Search</div></div>
+    <div class="item" data-go="notifications"><div class="ico">🔔</div><div>Notifications</div></div>
+    <div class="item" data-go="profile"><div class="ico">👤</div><div>Profile</div></div>
+    <div class="item" data-go="settings"><div class="ico">⚙</div><div>Settings</div></div>
+    <div class="item" data-go="admin" id="drawerAdmin" style="display:none">
+        <div class="ico">🛡</div><div>Admin</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="item" id="btnLogout">
+        <div class="ico">⎋</div><div>Logout</div>
+    </div>
+
+    <div class="hint">Admin permissions are enforced by Firestore rules.</div>
+</div>
+
+<div class="wrap" id="app"></div>
+
+<div class="bottomnav">
+    <div class="bottomnav-inner">
+        <div class="tab active" data-tab="feed"><div class="ico">🏠</div><div class="small">Home</div></div>
+        <div class="tab" data-tab="search"><div class="ico">🔎</div><div class="small">Search</div></div>
+        <div class="tab" data-tab="notifications"><div class="ico">🔔</div><div class="small">Alerts</div></div>
+        <div class="tab" data-tab="profile"><div class="ico">👤</div><div class="small">Profile</div></div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" id="modal"></div>
+</div>
+
+<button class="btn primary" id="fab" style="display:none">+</button>
+
+<script type="module">
+    import { installUpdates } from "./updates.js";
+    import { installMessaging } from "./messages.js";
+    import { installCalls } from "./calls.js";
+     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth, onAuthStateChanged,
+      createUserWithEmailAndPassword, signInWithEmailAndPassword,
+      signOut, updateProfile
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore, doc, setDoc, getDoc, updateDoc,
+      collection, addDoc, query, where, orderBy, limit,
+      getDocs, onSnapshot, serverTimestamp, increment,
+      deleteDoc, writeBatch, runTransaction
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import {
+      getStorage, ref, uploadBytes, getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+    const firebaseConfig = {
+  apiKey: "AIzaSyCmY_zfNcH5XnEaQxlqaTW1D8EUR670-Zo",
+  authDomain: "echostream-a102a.firebaseapp.com",
+  databaseURL: "https://echostream-a102a-default-rtdb.firebaseio.com",
+  projectId: "echostream-a102a",
+  storageBucket: "echostream-a102a.firebasestorage.app",
+  messagingSenderId: "789062222400",
+  appId: "1:789062222400:web:73d478269135a77d7d55a5",
+  measurementId: "G-QCJ1240EC5"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const auth = getAuth(fbApp);
+const db = getFirestore(fbApp);
+const storage = getStorage(fbApp);
+installCalls({ auth, db });
+installMessaging({ auth, db, storage });
+
+/* 🔑 THIS WAS THE MISSING PIECE */
+window.auth = auth;
+window.db = db;
+window.storage = storage;
+
+/* ---------------------------- */
+
+const $ = (sel) => document.querySelector(sel);
+const appEl = $("#app");
+const toastEl = $("#toast");
+const modalBackdrop = $("#modalBackdrop");
+const modalEl = $("#modal");
+const fab = $("#fab");
+
+function safe(s){
+  return (s ?? "").toString()
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+    function toast(msg){
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      setTimeout(() => toastEl.classList.remove("show"), 2400);
+    }
+
+    function openModal(html){
+      modalEl.innerHTML = html;
+      modalBackdrop.classList.add("open");
+    }
+    function closeModal(){
+      modalBackdrop.classList.remove("open");
+      modalEl.innerHTML = "";
+    }
+    modalBackdrop.addEventListener("click", (e) => {
+      if (e.target === modalBackdrop) closeModal();
+    });
+
+    function timeAgo(ts){
+      if(!ts) return "";
+      const d = ts.toDate ? ts.toDate() : new Date(ts);
+      const sec = Math.floor((Date.now() - d.getTime())/1000);
+      if(sec < 60) return `${sec}s`;
+      const min = Math.floor(sec/60);
+      if(min < 60) return `${min}m`;
+      const hr = Math.floor(min/60);
+      if(hr < 24) return `${hr}h`;
+      const day = Math.floor(hr/24);
+      return `${day}d`;
+    }
+
+    function initials(name){
+      const t = (name || "").trim();
+      if(!t) return "U";
+      const parts = t.split(/\s+/);
+      if(parts.length === 1) return parts[0].slice(0,1).toUpperCase();
+      return (parts[0].slice(0,1) + parts[1].slice(0,1)).toUpperCase();
+    }
+
+    function avatarHTML(user, size=44){
+      const photo = user?.photoURL || "";
+      const username = user?.username || "user";
+      const display = user?.displayName || username;
+      const ini = initials(display);
+      const avatarInner = photo
+        ? `<img src="${safe(photo)}" alt="avatar">`
+        : `<span style="font-weight:900">${safe(ini)}</span>`;
+      return `<div class="avatar" style="width:${size}px;height:${size}px">${avatarInner}</div>`;
+    }
+
+    let currentUser = null;
+    let me = null;
+    let route = "feed";
+    let isAdmin = false;
+
+    let unsubFeed = null;
+    let unsubNotifs = null;
+
+    const myBlocks = new Set();
+    const myMutes = new Set();
+
+    const drawer = $("#drawer");
+    const drawerBackdrop = $("#drawerBackdrop");
+
+    function openDrawer(){ drawer.classList.add("open"); drawerBackdrop.classList.add("open"); }
+    function closeDrawer(){ drawer.classList.remove("open"); drawerBackdrop.classList.remove("open"); }
+
+    $("#btnDrawer").addEventListener("click", openDrawer);
+    $("#btnCloseDrawer").addEventListener("click", closeDrawer);
+    drawerBackdrop.addEventListener("click", closeDrawer);
+
+    $("#btnTopSettings").addEventListener("click", () => setRoute("settings"));
+
+    drawer.querySelectorAll(".item[data-go]").forEach((item) => {
+      item.addEventListener("click", () => setRoute(item.dataset.go));
+    });
+
+    document.querySelectorAll(".tab").forEach((t) => {
+      t.addEventListener("click", () => setRoute(t.dataset.tab));
+    });
+
+    function highlightTabs(){
+      document.querySelectorAll(".tab").forEach((t) => {
+        t.classList.toggle("active", t.dataset.tab === route);
+      });
+    }
+
+    function setRoute(r){
+      route = r;
+      highlightTabs();
+      render();
+      closeDrawer();
+    }
+
+    async function computeAdmin(){
+      isAdmin = false;
+
+      const adminEl = $("#drawerAdmin");
+      if(!currentUser?.uid){
+        if(adminEl) adminEl.style.display = "none";
+        return;
+      }
+
+      try{
+        const a = await getDoc(doc(db,"admins", currentUser.uid));
+        isAdmin = a.exists();
+      }catch{
+        isAdmin = false;
+      }
+
+      if(adminEl) adminEl.style.display = isAdmin ? "flex" : "none";
+    }
+
+    async function ensureUserDoc(u){
+      const refU = doc(db, "users", u.uid);
+      const snap = await getDoc(refU);
+
+      if(!snap.exists()){
+        const base = (u.email || "user")
+          .split("@")[0]
+          .toLowerCase()
+          .replace(/[^a-z0-9_]/g,"");
+
+        const username = (base || "user").slice(0,18);
+
+        await setDoc(refU, {
+          uid: u.uid,
+          email: u.email || "",
+          username,
+          displayName: u.displayName || username,
+          photoURL: u.photoURL || "",
+          bio: "",
+          verified: false,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+      }else{
+        const data = snap.data();
+        const patch = {};
+
+        if((data.email || "") !== (u.email || "")) patch.email = u.email || "";
+
+        // only patch photoURL if u.photoURL is a real non-empty string
+        if(u.photoURL && (data.photoURL || "") !== u.photoURL){
+          patch.photoURL = u.photoURL;
+        }
+
+        if(Object.keys(patch).length){
+          patch.updatedAt = serverTimestamp();
+          await updateDoc(refU, patch);
+        }
+      }
+
+      const meSnap = await getDoc(refU);
+      me = meSnap.exists() ? meSnap.data() : null;
+    }
+
+    async function loadMyMutesBlocks(){
+      myBlocks.clear();
+      myMutes.clear();
+      if(!currentUser?.uid) return;
+
+      try{
+        const b = await getDocs(query(collection(db,"users", currentUser.uid, "blocks"), limit(2000)));
+        b.forEach(d => myBlocks.add(d.id));
+      }catch{}
+
+      try{
+        const m = await getDocs(query(collection(db,"users", currentUser.uid, "mutes"), limit(2000)));
+        m.forEach(d => myMutes.add(d.id));
+      }catch{}
+    }
+
+    async function muteUser(targetUid){
+      if(!currentUser?.uid || !targetUid) return;
+      await setDoc(doc(db,"users", currentUser.uid, "mutes", targetUid), { createdAt: serverTimestamp() });
+      myMutes.add(targetUid);
+      toast("Muted ✅");
+      render();
+    }
+
+    async function blockUser(targetUid){
+      if(!currentUser?.uid || !targetUid) return;
+      await setDoc(doc(db,"users", currentUser.uid, "blocks", targetUid), { createdAt: serverTimestamp() });
+      myBlocks.add(targetUid);
+      toast("Blocked ✅");
+      render();
+    }
+
+    async function reportPost(post){
+      if(!currentUser?.uid || !post?.id) return toast("Login first");
+      const reason = prompt("Report reason (optional):") || "";
+      await addDoc(collection(db,"reports"), {
+        postId: post.id,
+        postText: post.text || "",
+        postOwnerUid: post.uid || "",
+        postOwnerUsername: post.username || "",
+        reporterUid: currentUser.uid,
+        reporterEmail: currentUser.email || "",
+        reason,
+        status: "open",
+        createdAt: serverTimestamp()
+      });
+      toast("Reported ✅");
+    }
+
+    async function deletePost(post){
+      if(!currentUser?.uid || !post?.id) return;
+      const can = (post.uid === currentUser.uid) || isAdmin;
+      if(!can) return toast("You can't delete this.");
+      if(!confirm("Delete this post?")) return;
+      await deleteDoc(doc(db,"posts", post.id));
+      toast("Deleted ✅");
+    }
+
+    async function adminCloseReport(reportId){
+      if(!isAdmin) return toast("Not admin.");
+      await updateDoc(doc(db,"reports", reportId), {
+        status: "closed",
+        closedAt: serverTimestamp(),
+        closedBy: currentUser.uid
+      });
+      toast("Closed ✅");
+    }
+
+    async function adminDeleteReportedPost(postId){
+      if(!isAdmin) return toast("Not admin.");
+      if(!confirm("Admin delete post?")) return;
+      await deleteDoc(doc(db,"posts", postId));
+      toast("Post deleted ✅");
+    }
+
+    async function isFollowing(myUid, targetUid){
+      if(!myUid || !targetUid || myUid === targetUid) return false;
+      const s = await getDoc(doc(db,"follows", myUid, "following", targetUid));
+      return s.exists();
+    }
+
+    async function followUser(targetUid){
+      if(!currentUser?.uid) return toast("Login first");
+      if(currentUser.uid === targetUid) return toast("You can't follow yourself");
+
+      const myUid = currentUser.uid;
+      const batch = writeBatch(db);
+      batch.set(doc(db,"follows", myUid, "following", targetUid), { uid: targetUid, createdAt: serverTimestamp() });
+      batch.set(doc(db,"follows", targetUid, "followers", myUid), { uid: myUid, createdAt: serverTimestamp() });
+      await batch.commit();
+    }
+
+    async function unfollowUser(targetUid){
+      if(!currentUser?.uid) return;
+      if(currentUser.uid === targetUid) return;
+
+      const myUid = currentUser.uid;
+      const batch = writeBatch(db);
+      batch.delete(doc(db,"follows", myUid, "following", targetUid));
+      batch.delete(doc(db,"follows", targetUid, "followers", myUid));
+      await batch.commit();
+    }
+
+    async function countFollowers(uid){
+      const snap = await getDocs(query(collection(db,"follows", uid, "followers"), limit(2000)));
+      return snap.size;
+    }
+
+    async function countFollowing(uid){
+      const snap = await getDocs(query(collection(db,"follows", uid, "following"), limit(2000)));
+      return snap.size;
+    }
+
+    async function listFollow(uid, mode){
+      const snap = await getDocs(query(collection(db,"follows", uid, mode), orderBy("createdAt","desc"), limit(80)));
+      const uids = snap.docs.map(d=>d.id);
+      const users = [];
+
+      for(const id of uids){
+        const s = await getDoc(doc(db,"users", id));
+        if(s.exists()) users.push(s.data());
+      }
+      return users;
+    }
+    async function toggleLike(postId, postOwnerUid){
+      if(!currentUser?.uid) return toast("Login first");
+      const uid = currentUser.uid;
+
+      try{
+        await runTransaction(db, async (tx) => {
+          const postRef = doc(db,"posts", postId);
+          const likeRef = doc(db,"posts", postId, "likes", uid);
+
+          const likeSnap = await tx.get(likeRef);
+          if(likeSnap.exists()){
+            tx.delete(likeRef);
+            tx.update(postRef, { likeCount: increment(-1) });
+          }else{
+            tx.set(likeRef, { uid, createdAt: serverTimestamp() });
+            tx.update(postRef, { likeCount: increment(1) });
+          }
+        });
+      }catch(e){
+        toast(e?.message || "Like failed");
+        return;
+      }
+
+      try{
+        if(postOwnerUid && postOwnerUid !== currentUser.uid){
+          await addDoc(collection(db,"notifications", postOwnerUid, "items"), {
+            type: "like",
+            fromUid: currentUser.uid,
+            fromUsername: me?.username || "user",
+            postId,
+            createdAt: serverTimestamp(),
+            read: false
+          });
+        }
+      }catch{}
+    }
+
+    async function addComment(postId, postOwnerUid){
+      if(!currentUser?.uid) return toast("Login first");
+
+      openModal(`
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <div class="title">Add comment</div>
+          <button class="btn" id="mClose">Close</button>
+        </div>
+        <div class="divider"></div>
+        <textarea id="cText" placeholder="Write a comment..."></textarea>
+        <div class="row" style="justify-content:flex-end;margin-top:10px">
+          <button class="btn primary" id="cSend">Send</button>
+        </div>
+      `);
+
+      const closeBtn = $("#mClose");
+      if(closeBtn) closeBtn.onclick = closeModal;
+
+      const sendBtn = $("#cSend");
+      if(!sendBtn) return;
+
+      sendBtn.onclick = async () => {
+        const text = ($("#cText").value || "").trim();
+        if(!text) return toast("Write something.");
+
+        try{
+          await addDoc(collection(db,"posts", postId, "comments"), {
+            uid: currentUser.uid,
+            username: me?.username || "user",
+            verified: !!me?.verified,
+            text,
+            createdAt: serverTimestamp()
+          });
+
+          await updateDoc(doc(db,"posts", postId), { commentCount: increment(1) });
+
+          try{
+            if(postOwnerUid && postOwnerUid !== currentUser.uid){
+              await addDoc(collection(db,"notifications", postOwnerUid, "items"), {
+                type: "comment",
+                fromUid: currentUser.uid,
+                fromUsername: me?.username || "user",
+                postId,
+                textPreview: text.slice(0, 90),
+                createdAt: serverTimestamp(),
+                read: false
+              });
+            }
+          }catch{}
+
+          closeModal();
+          toast("Comment added ✅");
+        }catch(e){
+          toast(e?.message || "Comment failed");
+        }
+      };
+    }
+
+    async function openComments(postId, postOwnerUid){
+      openModal(`
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <div class="title">Comments</div>
+          <button class="btn" id="mClose">Close</button>
+        </div>
+        <div class="divider"></div>
+        <div class="row" style="align-items:flex-start">
+          ${avatarHTML(me, 40)}
+          <div style="flex:1">
+            <textarea id="cText" placeholder="Write a comment..."></textarea>
+            <div class="row" style="justify-content:flex-end;margin-top:10px">
+              <button class="btn primary" id="cSend">Send</button>
+            </div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div id="cList"><div class="muted small">Loading...</div></div>
+      `);
+
+      $("#mClose").onclick = closeModal;
+
+      const qC = query(collection(db,"posts", postId, "comments"), orderBy("createdAt","desc"), limit(50));
+      const snap = await getDocs(qC);
+      const comments = snap.docs.map(d=>({id:d.id, ...d.data()}));
+
+      $("#cList").innerHTML = comments.length
+        ? comments.map(commentCardHTML).join("")
+        : `<div class="muted small">No comments yet.</div>`;
+
+      wireClickableUsers();
+
+      $("#cSend").onclick = async () => {
+        const text = ($("#cText").value || "").trim();
+        if(!text) return toast("Write something.");
+
+        try{
+          await addDoc(collection(db,"posts", postId, "comments"), {
+            uid: currentUser.uid,
+            username: me?.username || "user",
+            displayName: me?.displayName || me?.username || "User",
+            verified: !!me?.verified,
+            text,
+            createdAt: serverTimestamp()
+          });
+
+          await updateDoc(doc(db,"posts", postId), { commentCount: increment(1) });
+
+          if(postOwnerUid && postOwnerUid !== currentUser.uid){
+            await addDoc(collection(db,"notifications", postOwnerUid, "items"), {
+              type: "comment",
+              fromUid: currentUser.uid,
+              fromUsername: me?.username || "user",
+              fromDisplayName: me?.displayName || me?.username || "User",
+              postId,
+              textPreview: text.slice(0, 90),
+              createdAt: serverTimestamp(),
+              read: false
+            });
+          }
+
+          const snap2 = await getDocs(qC);
+          const comments2 = snap2.docs.map(d => ({ id: d.id, ...d.data() }));
+
+          $("#cList").innerHTML = comments2.length
+            ? comments2.map(commentCardHTML).join("")
+            : `<div class="muted small">No comments yet.</div>`;
+
+          $("#cText").value = "";
+          wireClickableUsers();
+        }catch(e){
+          toast(e?.message || "Comment failed");
+        }
+      };
+    }
+
+    async function showLikes(postId){
+      openModal(`
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <div class="title">Likes</div>
+          <button class="btn" id="mClose">Close</button>
+        </div>
+        <div class="divider"></div>
+        <div id="likeList"><div class="muted small">Loading...</div></div>
+      `);
+      $("#mClose").onclick = closeModal;
+
+      try{
+        const likesSnap = await getDocs(query(collection(db,"posts", postId, "likes"), orderBy("createdAt","desc"), limit(120)));
+        const likeUids = likesSnap.docs.map(d=>d.id);
+
+        if(!likeUids.length){
+          $("#likeList").innerHTML = `<div class="muted small">No likes yet.</div>`;
+          return;
+        }
+
+        const users = [];
+        for(const uid of likeUids){
+          const s = await getDoc(doc(db,"users", uid));
+          if(s.exists()) users.push(s.data());
+        }
+
+        $("#likeList").innerHTML = `<div class="grid">${users.map(userRowHTML).join("")}</div>`;
+        wireClickableUsers();
+        await wireFollowButtons();
+      }catch{
+        $("#likeList").innerHTML = `<div class="muted small">Failed to load likes.</div>`;
+      }
+    }
+
+    function userRowHTML(u){
+      const uid = safe(u?.uid || "");
+      const username = safe(u?.username || "user");
+      const verified = u?.verified ? `<span class="verified">✓</span>` : "";
+      const bio = safe(u?.bio || "");
+
+      const followBtn = (currentUser?.uid && uid && currentUser.uid !== uid)
+        ? `<button class="btn primary" data-followtoggle="${uid}" style="padding:10px 12px;border-radius:12px">Follow</button>`
+        : "";
+
+      return `
+        <div class="card" style="background:rgba(20,24,34,.55)">
+          <div class="row" style="justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
+            <div class="row" style="gap:10px;align-items:center">
+              ${avatarHTML(u, 46)}
+              <div>
+                <div style="font-weight:900">
+                  <span class="clickableUser" data-uid="${uid}">${username}</span>${verified}
+                </div>
+                <div class="muted small">${bio}</div>
+              </div>
+            </div>
+            ${followBtn}
+          </div>
+        </div>
+      `;
+    }
+
+    function commentCardHTML(c){
+      const uid = safe(c?.uid || "");
+      const username = safe(c?.username || "user");
+      const verified = c?.verified ? `<span class="verified">✓</span>` : "";
+      const when = c?.createdAt ? timeAgo(c.createdAt) : "";
+      const text = safe(c?.text || "");
+
+      return `
+        <div class="comment">
+          <div class="row" style="justify-content:space-between;align-items:flex-start">
+            <div>
+              <b><span class="clickableUser" data-uid="${uid}">${username}</span></b>${verified}
+            </div>
+            <div class="muted small">${when}</div>
+          </div>
+          <div style="margin-top:6px;white-space:pre-wrap">${text}</div>
+        </div>
+      `;
+    }
+
+    function postCardHTML(p){
+      const postId = safe(p?.id || "");
+      const uidP = safe(p?.uid || "");
+      const username = safe(p?.username || "user");
+      const displayName = safe(p?.displayName || username);
+      const verified = p?.verified ? `<span class="verified">✓</span>` : "";
+      const created = p?.createdAt ? timeAgo(p.createdAt) : "";
+      const likeCount = Number(p?.likeCount || 0);
+      const commentCount = Number(p?.commentCount || 0);
+      const text = safe(p?.text || "");
+
+      const img = p?.imageURL || p?.imageUrl || "";
+
+      const imageHTML = img
+        ? `
+          <div class="post-img clickableImage" data-img="${safe(img)}">
+            <img src="${safe(img)}" alt="post image">
+          </div>
+        `
+        : "";
+
+      const canDelete = !!currentUser?.uid && (currentUser.uid === p?.uid || isAdmin);
+
+      return `
+        <div class="card" id="post_${postId}">
+          <div class="postTopRow">
+            <div class="row" style="align-items:flex-start">
+              <div id="postAvatar_${postId}">
+                ${avatarHTML({ username, photoURL: p?.photoURL || "" }, 44)}
+              </div>
+
+              <div style="flex:1">
+                <div style="font-weight:900">
+                  <span class="clickableUser" data-uid="${uidP}">${displayName}</span>
+                  ${verified}
+                </div>
+                <div class="muted small">@${username}${created ? ` · ${created}` : ""}</div>
+              </div>
+
+              <div class="menuWrap">
+                <button class="moreBtn" data-more="${postId}" aria-label="More">⋯</button>
+                <div class="menu" id="menu_${postId}">
+                  <button data-report="${postId}">Report</button>
+                  <button data-mute="${uidP}">Mute user</button>
+                  <button data-block="${uidP}">Block user</button>
+                  ${canDelete ? `<button class="danger" data-deletepost="${postId}">Delete post</button>` : ``}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          ${text ? `<div style="margin-top:10px;white-space:pre-wrap">${text}</div>` : ""}
+          ${imageHTML}
+
+          <div class="post-actions">
+            <div class="action" data-showlikes="${postId}">
+              <span>👥</span><span class="small">Likes</span>
+            </div>
+
+            <div class="action" data-like="${postId}" data-owner="${uidP}">
+              <span>♡</span><span class="small">Like</span>
+              <span class="small muted" id="likeCount_${postId}">${likeCount}</span>
+            </div>
+
+            <div class="action" data-opencomments="${postId}" data-owner="${uidP}">
+              <span>💬</span><span class="small">Comments</span>
+              <span class="small muted" id="commentCount_${postId}">${commentCount}</span>
+            </div>
+
+            <div class="action" data-addcomment="${postId}" data-owner="${uidP}">
+              <span>＋</span><span class="small">Add</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function closeAllPostMenus(){
+      document.querySelectorAll(".menu.open").forEach(m => m.classList.remove("open"));
+    }
+
+    function wireClickableUsers(){
+      document.querySelectorAll(".clickableUser").forEach((el) => {
+        if(el.__wired) return;
+        el.__wired = true;
+        el.classList.add("linkish");
+        el.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const uid = el.getAttribute("data-uid");
+          if(uid) openUserProfile(uid);
+        });
+      });
+    }
+
+    function wireClickableImages(){
+      document.querySelectorAll(".clickableImage").forEach((el) => {
+        if(el.__wired) return;
+        el.__wired = true;
+        el.style.cursor = "pointer";
+
+        el.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const img = el.getAttribute("data-img");
+          if(!img) return;
+
+          openModal(`
+            <div class="row" style="justify-content:space-between;align-items:center">
+              <div class="title">Image</div>
+              <button class="btn" id="mClose">Close</button>
+            </div>
+            <div class="divider"></div>
+            <div style="display:flex;justify-content:center">
+              <img src="${img}" style="max-width:100%;max-height:70vh;border-radius:16px;border:1px solid rgba(39,48,71,.85)" />
+            </div>
+          `);
+
+          $("#mClose").onclick = closeModal;
+        });
+      });
+    }
+
+    async function wireFollowButtons(){
+      document.querySelectorAll("[data-followtoggle]").forEach((btn) => {
+        if(btn.__wired) return;
+        btn.__wired = true;
+
+        btn.addEventListener("click", async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const targetUid = btn.getAttribute("data-followtoggle");
+          if(!targetUid || !currentUser?.uid) return;
+
+          try{
+            const now = await isFollowing(currentUser.uid, targetUid);
+
+            if(now){
+              await unfollowUser(targetUid);
+              btn.textContent = "Follow";
+              btn.classList.add("primary");
+              toast("Unfollowed");
+            }else{
+              await followUser(targetUid);
+              btn.textContent = "Following";
+              btn.classList.remove("primary");
+              toast("Followed ✅");
+            }
+          }catch(err){
+            toast(err?.message || "Follow failed");
+          }
+        });
+      });
+
+      if(currentUser?.uid){
+        const btns = [...document.querySelectorAll("[data-followtoggle]")];
+        for(const btn of btns){
+          const targetUid = btn.getAttribute("data-followtoggle");
+          if(!targetUid) continue;
+          const now = await isFollowing(currentUser.uid, targetUid);
+          btn.textContent = now ? "Following" : "Follow";
+          btn.classList.toggle("primary", !now);
+        }
+      }
+    }
+
+    async function afterRenderCommon(postsForLikeState){
+      wireClickableUsers();
+      await wireFollowButtons();
+      wireClickableImages();
+
+      document.querySelectorAll("[data-like]").forEach((btn) => {
+        if(btn.__wired) return;
+        btn.__wired = true;
+        btn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          const postId = btn.getAttribute("data-like");
+          const owner = btn.getAttribute("data-owner") || "";
+          await toggleLike(postId, owner);
+        });
+      });
+
+      document.querySelectorAll("[data-opencomments]").forEach((btn) => {
+        if(btn.__wired) return;
+        btn.__wired = true;
+        btn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          const postId = btn.getAttribute("data-opencomments");
+          const owner = btn.getAttribute("data-owner") || "";
+          await openComments(postId, owner);
+        });
+      });
+
+      document.querySelectorAll("[data-addcomment]").forEach((btn) => {
+        if(btn.__wired) return;
+        btn.__wired = true;
+        btn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          const postId = btn.getAttribute("data-addcomment");
+          const owner = btn.getAttribute("data-owner") || "";
+          await addComment(postId, owner);
+        });
+      });
+
+      document.querySelectorAll("[data-showlikes]").forEach((btn) => {
+        if(btn.__wired) return;
+        btn.__wired = true;
+        btn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          const postId = btn.getAttribute("data-showlikes");
+          if(postId) await showLikes(postId);
+        });
+      });
+
+      document.querySelectorAll("[data-more]").forEach((btn) => {
+        if(btn.__wired) return;
+        btn.__wired = true;
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const postId = btn.getAttribute("data-more");
+          const menu = document.querySelector(`#menu_${postId}`);
+          if(!menu) return;
+          const open = menu.classList.contains("open");
+          closeAllPostMenus();
+          if(!open) menu.classList.add("open");
+        });
+      });
+
+      document.querySelectorAll("[data-report]").forEach((btn) => {
+        if(btn.__wired) return;
+        btn.__wired = true;
+        btn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          closeAllPostMenus();
+          const postId = btn.getAttribute("data-report");
+          const post = postsForLikeState?.find(x => x.id === postId);
+          if(post) await reportPost(post);
+        });
+      });
+
+      document.querySelectorAll("[data-mute]").forEach((btn) => {
+        if(btn.__wired) return;
+        btn.__wired = true;
+        btn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          closeAllPostMenus();
+          const uidTarget = btn.getAttribute("data-mute");
+          if(uidTarget){
+            if(confirm("Mute this user?")) await muteUser(uidTarget);
+          }
+        });
+      });
+
+      document.querySelectorAll("[data-block]").forEach((btn) => {
+        if(btn.__wired) return;
+        btn.__wired = true;
+        btn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          closeAllPostMenus();
+          const uidTarget = btn.getAttribute("data-block");
+          if(uidTarget){
+            if(confirm("Block this user?")) await blockUser(uidTarget);
+          }
+        });
+      });
+
+      document.querySelectorAll("[data-deletepost]").forEach((btn) => {
+        if(btn.__wired) return;
+        btn.__wired = true;
+        btn.addEventListener("click", async (e) => {
+          e.stopPropagation();
+          closeAllPostMenus();
+          const postId = btn.getAttribute("data-deletepost");
+          const post = postsForLikeState?.find(x => x.id === postId);
+          if(post) await deletePost(post);
+        });
+      });
+    }
+
+    document.addEventListener("click", () => closeAllPostMenus(), { passive:true });
+
+    async function markLikedStates(posts){
+      if(!currentUser?.uid) return;
+      const uidU = currentUser.uid;
+      for(const p of posts){
+        try{
+          const s = await getDoc(doc(db,"posts", p.id, "likes", uidU));
+          const likeBtn = document.querySelector(`[data-like="${p.id}"]`);
+          if(likeBtn){
+            likeBtn.classList.toggle("active", s.exists());
+            const firstSpan = likeBtn.querySelector("span");
+            if(firstSpan) firstSpan.textContent = s.exists() ? "♥️" : "♡";
+          }
+        }catch{}
+      }
+    }
+
+    async function hydrateAvatars(posts){
+      const uids = [...new Set(posts.map(p=>p.uid).filter(Boolean))];
+      const map = {};
+      const snaps = await Promise.all(uids.map(uid => getDoc(doc(db,"users", uid))));
+      snaps.forEach((s,i) => { if(s.exists()) map[uids[i]] = s.data(); });
+
+      for(const p of posts){
+        const u = map[p.uid];
+        if(!u) continue;
+        const holder = document.querySelector(`#post_${p.id} #postAvatar_${p.id}`);
+        if(holder){
+          holder.innerHTML = avatarHTML(u, 44);
+        }
+      }
+    }
+
+    function renderAuth(){
+      fab.style.display = "none";
+      appEl.innerHTML = `
+        <div class="grid two">
+          <div class="card">
+            <div class="h1">EchoStream</div>
+            <div class="muted" style="margin-top:6px">Login or create a real account.</div>
+            <div class="divider"></div>
+
+            <div class="col">
+              <div>
+                <div class="small muted">Email</div>
+                <input id="authEmail" type="email" placeholder="you@email.com" autocomplete="email" />
+              </div>
+              <div>
+                <div class="small muted">Password</div>
+                <input id="authPass" type="password" placeholder="••••••••" autocomplete="current-password" />
+              </div>
+
+              <button class="btn primary" id="btnLogin">Login</button>
+              <button class="btn" id="btnSignup">Create Account</button>
+
+              <div class="hint">Real Firebase Auth + Firestore.</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="title">Features</div>
+            <div class="divider"></div>
+            <div class="col small">
+              <div class="pill">✅ Posts</div>
+              <div class="pill">✅ Likes</div>
+              <div class="pill">✅ Comments</div>
+              <div class="pill">✅ Follow / Following</div>
+              <div class="pill">🛡 Admin verify</div>
+              <div class="pill">🚩 Report + Mute + Block + Delete</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      $("#btnLogin").onclick = async () => {
+        const email = $("#authEmail").value.trim();
+        const pass = $("#authPass").value;
+        if(!email || !pass) return toast("Enter email + password.");
+        try{
+          await signInWithEmailAndPassword(auth, email, pass);
+        }catch(e){
+          toast(e?.message || "Login failed.");
+        }
+      };
+
+      $("#btnSignup").onclick = async () => {
+        const email = $("#authEmail").value.trim();
+        const pass = $("#authPass").value;
+        if(!email || !pass) return toast("Enter email + password.");
+        try{
+          const cred = await createUserWithEmailAndPassword(auth, email, pass);
+          await updateProfile(cred.user, { displayName: email.split("@")[0] });
+          toast("Account created ✅");
+        }catch(e){
+          toast(e?.message || "Signup failed.");
+        }
+      };
+    }
+
+    async function doLogout(){
+      try{ await signOut(auth); }catch{ toast("Logout failed."); }
+    }
+    $("#btnLogout").addEventListener("click", doLogout);
+
+    function render(){
+      if(!currentUser){
+        renderAuth();
+        highlightTabs();
+        return;
+      }
+
+      fab.style.display = "grid";
+
+      if(route === "feed") return renderFeed();
+      if(route === "search") return renderSearch();
+      if(route === "notifications") return renderNotifications();
+      if(route === "profile") return renderProfile();
+      if(route === "settings") return renderSettings();
+      if(route === "admin") return renderAdmin();
+
+      route = "feed";
+      highlightTabs();
+      return renderFeed();
+    }
+
+    function filterMutedBlocked(posts){
+      return posts.filter(p => {
+        const author = p.uid || "";
+        if(!author) return true;
+        if(myBlocks.has(author)) return false;
+        if(myMutes.has(author)) return false;
+        return true;
+      });
+    }
+
+    function renderSettings(){
+      appEl.innerHTML = `
+        <div class="card">
+          <div class="title">Settings</div>
+          <div class="divider"></div>
+
+          <div class="row" style="justify-content:space-between">
+            <span>Email</span>
+            <span class="muted small">${safe(me?.email || "")}</span>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- FIX: different id so it doesn't conflict with drawer -->
+          <button class="btn danger" id="btnLogoutSettings">Logout</button>
+        </div>
+      `;
+
+      $("#btnLogoutSettings").onclick = doLogout;
+    }
+
+    function renderFeed(){
+      appEl.innerHTML = `
+        <div class="card">
+          <div class="row" style="justify-content:space-between;align-items:center">
+            <div class="title">Feed</div>
+            <div class="pill user-line">
+              <span class="display-name">
+                ${safe(me?.displayName || "")}
+              </span>
+              <span class="username">
+                @${safe(me?.username || "user")}
+              </span>
+              ${me?.verified ? '<span class="verified">✔</span>' : ''}
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div id="feedList" class="grid">
+            <div class="muted small">Loading…</div>
+          </div>
+        </div>
+      `;
+
+      if(unsubFeed) { unsubFeed(); unsubFeed = null; }
+
+      const qFeed = query(collection(db,"posts"), orderBy("createdAt","desc"), limit(50));
+      unsubFeed = onSnapshot(
+        qFeed,
+        async (snap) => {
+          const list = $("#feedList");
+
+          try{
+            const postsRaw = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            const posts = filterMutedBlocked(postsRaw);
+
+            if(!posts.length){
+              list.innerHTML = `<div class="muted small">No posts yet. Tap + to post.</div>`;
+              return;
+            }
+
+            list.innerHTML = posts.map(postCardHTML).join("");
+            await hydrateAvatars(posts);
+            await markLikedStates(posts);
+            await afterRenderCommon(posts);
+
+          }catch(err){
+            console.error(err);
+            list.innerHTML = `<div class="muted small">Feed render error: ${safe(err?.message || err)}</div>`;
+          }
+        },
+        (err) => {
+          console.error(err);
+          $("#feedList").innerHTML = `<div class="muted small">Feed load error: ${safe(err?.message || err)}</div>`;
+        }
+      );
+    }
+
+    function renderSearch(){
+      appEl.innerHTML = `
+        <div class="card">
+          <div class="title">Search</div>
+          <div class="divider"></div>
+          <input id="searchInput" placeholder="Search usernames..." />
+          <div class="hint">Tip: type a username and press Enter.</div>
+          <div class="divider"></div>
+          <div id="searchResults" class="grid"></div>
+        </div>
+      `;
+
+      const input = $("#searchInput");
+      const results = $("#searchResults");
+
+      input.addEventListener("keydown", async (e) => {
+        if(e.key !== "Enter") return;
+        const term = (input.value || "").trim().toLowerCase();
+        if(!term) return;
+
+        results.innerHTML = `<div class="muted small">Searching…</div>`;
+
+        try{
+          const snap = await getDocs(query(collection(db,"users"), limit(50)));
+          const users = snap.docs.map(d=>d.data())
+            .filter(u => (u.username||"").toLowerCase().includes(term))
+            .slice(0, 30);
+
+          results.innerHTML = users.length
+            ? users.map(userRowHTML).join("")
+            : `<div class="muted small">No users found.</div>`;
+
+          await afterRenderCommon([]);
+        }catch(e2){
+          results.innerHTML = `<div class="muted small">${safe(e2?.message || "Search failed")}</div>`;
+        }
+      });
+    }
+
+    function renderNotifications(){
+      appEl.innerHTML = `
+        <div class="card">
+          <div class="row" style="justify-content:space-between;align-items:center">
+            <div class="title">Notifications</div>
+            <div class="pill">Real-time</div>
+          </div>
+          <div class="divider"></div>
+          <div id="notifList" class="grid">
+            <div class="muted small">Loading…</div>
+          </div>
+        </div>
+      `;
+
+      if(unsubNotifs) { unsubNotifs(); unsubNotifs = null; }
+
+      const qN = query(collection(db,"notifications", currentUser.uid, "items"), orderBy("createdAt","desc"), limit(60));
+      unsubNotifs = onSnapshot(qN, async (snap) => {
+        const notifs = snap.docs.map(d=>({id:d.id, ...d.data()}));
+        const host = $("#notifList");
+        if(!notifs.length){
+          host.innerHTML = `<div class="muted small">No notifications yet.</div>`;
+          return;
+        }
+
+        const uids = [...new Set(notifs.map(n=>n.fromUid).filter(Boolean))];
+        const map = {};
+        const snaps = await Promise.all(uids.map(uid => getDoc(doc(db,"users", uid))));
+        snaps.forEach((s,i)=>{ if(s.exists()) map[uids[i]] = s.data(); });
+
+        host.innerHTML = notifs.map(n => {
+          const from = map[n.fromUid] || {username:n.fromUsername || "user"};
+          const when = n.createdAt ? timeAgo(n.createdAt) : "";
+          const type = n.type || "event";
+          const line = type === "like"
+            ? `liked your post`
+            : type === "comment"
+              ? `commented: "${safe(n.textPreview || "")}"`
+              : `notification`;
+          return `
+            <div class="card" style="background:rgba(20,24,34,.55)">
+              <div class="row" style="justify-content:space-between;align-items:flex-start">
+                <div class="row" style="align-items:flex-start">
+                  ${avatarHTML(from, 42)}
+                  <div>
+                    <div style="font-weight:900">
+                      <span class="clickableUser" data-uid="${safe(from.uid || n.fromUid || "")}">${safe(from.username || "user")}</span>
+                      ${from.verified ? `<span class="verified">✓</span>` : ""}
+                    </div>
+                    <div class="muted small">${line}</div>
+                  </div>
+                </div>
+                <div class="muted small">${when}</div>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        await afterRenderCommon([]);
+      }, () => {
+        $("#notifList").innerHTML = `<div class="muted small">Failed to load notifications.</div>`;
+      });
+    }
+    async function renderProfile(){
+      try{
+        const s = await getDoc(doc(db,"users", currentUser.uid));
+        if(s.exists()) me = s.data();
+      }catch{}
+
+      const followers = await countFollowers(currentUser.uid);
+      const following = await countFollowing(currentUser.uid);
+
+      appEl.innerHTML = `
+        <div id="profileOnlyView" class="grid two">
+          <div class="card">
+            <div class="row" style="justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+              <div class="row" style="align-items:center">
+                ${avatarHTML(me, 64)}
+                <div style="min-width:0">
+                  <div style="font-weight:950;font-size:18px;line-height:1.2">
+                    ${safe(me?.displayName || me?.username || "user")}
+                    ${me?.verified ? `<span class="verified">✓</span>` : ""}
+                  </div>
+                  <div class="muted small">@${safe(me?.username || "user")}</div>
+                  <div class="muted small" style="margin-top:6px;white-space:pre-wrap">${safe(me?.bio || "")}</div>
+                </div>
+              </div>
+
+              <button class="btn primary" id="btnOpenEditProfile" style="padding:10px 12px;border-radius:12px">
+                Edit profile
+              </button>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="row" style="justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div class="pill clickable" id="pillFollowers">Followers: <b>${followers}</b></div>
+              <div class="pill clickable" id="pillFollowing">Following: <b>${following}</b></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="title">Your posts</div>
+            <div class="divider"></div>
+            <div id="myPosts" class="grid"><div class="muted small">Loading…</div></div>
+          </div>
+        </div>
+
+        <div id="editProfileView" class="grid two" style="display:none;">
+          <div class="card">
+            <div class="row" style="justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+              <div class="title">Edit Profile</div>
+              <button class="btn" id="btnCloseEditProfile" style="padding:10px 12px;border-radius:12px">← Back</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="grid">
+              <div>
+                <div class="small muted">Display name</div>
+                <input id="pDisplayName" value="${safe(me?.displayName || "")}" placeholder="Your name (shown on posts)" maxlength="32" />
+              </div>
+
+              <div>
+                <div class="small muted">Username</div>
+                <input id="pUsername" value="${safe(me?.username || "")}" maxlength="18" />
+              </div>
+
+              <div>
+                <div class="small muted">Bio</div>
+                <textarea id="pBio" placeholder="Your bio...">${safe(me?.bio || "")}</textarea>
+              </div>
+
+              <div>
+                <div class="small muted">Profile picture</div>
+                <input id="pPhoto" type="file" accept="image/*" />
+              </div>
+
+              <button class="btn primary" id="btnSaveProfile">Save Profile</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="title">Preview</div>
+            <div class="divider"></div>
+            <div class="muted small">Tap “Save Profile” to apply.</div>
+          </div>
+        </div>
+      `;
+
+      const profileOnlyView = document.getElementById("profileOnlyView");
+      const editProfileView = document.getElementById("editProfileView");
+
+      const showProfileOnly = () => {
+        editProfileView.style.display = "none";
+        profileOnlyView.style.display = "grid";
+      };
+      const showEditProfile = () => {
+        profileOnlyView.style.display = "none";
+        editProfileView.style.display = "grid";
+      };
+
+      document.getElementById("btnOpenEditProfile").onclick = showEditProfile;
+      document.getElementById("btnCloseEditProfile").onclick = showProfileOnly;
+
+      document.getElementById("pillFollowers").onclick = async () => {
+        const users = await listFollow(currentUser.uid, "followers");
+        openModal(`
+          <div class="row" style="justify-content:space-between;align-items:center">
+            <div class="title">Followers</div>
+            <button class="btn" id="mClose">Close</button>
+          </div>
+          <div class="divider"></div>
+          <div class="grid">${users.length ? users.map(userRowHTML).join("") : `<div class="muted small">No followers yet.</div>`}</div>
+        `);
+        document.getElementById("mClose").onclick = closeModal;
+        await afterRenderCommon([]);
+      };
+
+      document.getElementById("pillFollowing").onclick = async () => {
+        const users = await listFollow(currentUser.uid, "following");
+        openModal(`
+          <div class="row" style="justify-content:space-between;align-items:center">
+            <div class="title">Following</div>
+            <button class="btn" id="mClose">Close</button>
+          </div>
+          <div class="divider"></div>
+          <div class="grid">${users.length ? users.map(userRowHTML).join("") : `<div class="muted small">Not following anyone yet.</div>`}</div>
+        `);
+        document.getElementById("mClose").onclick = closeModal;
+        await afterRenderCommon([]);
+      };
+
+      document.getElementById("btnSaveProfile").onclick = async () => {
+        if (!currentUser?.uid) return toast("Login first");
+
+        const username = (document.getElementById("pUsername").value || "").trim();
+        const displayName = (document.getElementById("pDisplayName").value || "").trim();
+        const bio = (document.getElementById("pBio").value || "").trim();
+
+        if (!username) return toast("Username required.");
+        if (username.length > 18) return toast("Max 18 chars.");
+
+        try {
+          const snap = await getDocs(query(collection(db, "users"), where("username", "==", username)));
+          if (!snap.empty && snap.docs[0].id !== currentUser.uid) {
+            return toast("Username already taken.");
+          }
+
+          let photoURL = me?.photoURL || "";
+          const file = document.getElementById("pPhoto")?.files?.[0];
+          if (file) {
+            const path = `avatars/${currentUser.uid}/${Date.now()}_${file.name}`;
+            const r = ref(storage, path);
+            await uploadBytes(r, file);
+            photoURL = await getDownloadURL(r);
+          }
+
+          await updateDoc(doc(db, "users", currentUser.uid), {
+            username,
+            displayName: displayName || username,
+            bio,
+            photoURL,
+            updatedAt: serverTimestamp()
+          });
+
+          me = { ...(me || {}), username, displayName: displayName || username, bio, photoURL };
+
+          toast("Profile saved ✅");
+
+          showProfileOnly();
+          renderProfile();
+        } catch (e) {
+          console.error(e);
+          toast(e?.message || "Save failed");
+        }
+      };
+
+      try{
+        const qMine = query(collection(db,"posts"), where("uid","==", currentUser.uid), orderBy("createdAt","desc"), limit(50));
+        const snap = await getDocs(qMine);
+        const postsRaw = snap.docs.map(d=>({id:d.id, ...d.data()}));
+        const posts = filterMutedBlocked(postsRaw);
+
+        document.getElementById("myPosts").innerHTML =
+          posts.length ? posts.map(postCardHTML).join("") : `<div class="muted small">No posts yet.</div>`;
+
+        await hydrateAvatars(posts);
+        await markLikedStates(posts);
+        await afterRenderCommon(posts);
+      }catch{
+        document.getElementById("myPosts").innerHTML = `<div class="muted small">Failed to load posts.</div>`;
+      }
+
+      showProfileOnly();
+    }
+
+    async function renderAdmin(){
+      if(!isAdmin){
+        appEl.innerHTML = `<div class="card"><div class="title">Admin</div><div class="divider"></div><div class="muted">Not authorized.</div></div>`;
+        return;
+      }
+
+      appEl.innerHTML = `
+        <div class="card">
+          <div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap">
+            <div class="title">Admin Panel</div>
+            <div class="pill">Secure</div>
+          </div>
+          <div class="divider"></div>
+
+          <div class="grid two">
+            <div class="card" style="background:rgba(20,24,34,.55)">
+              <div class="title">Reports</div>
+              <div class="divider"></div>
+              <div id="reportList" class="grid"><div class="muted small">Loading…</div></div>
+            </div>
+
+            <div class="card" style="background:rgba(20,24,34,.55)">
+              <div class="title">Find user</div>
+              <div class="divider"></div>
+              <input id="adminSearch" placeholder="Search username..." />
+              <div class="hint">Press Enter to search (top users, filtered).</div>
+              <div class="divider"></div>
+              <div id="adminResults" class="grid"></div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      try{
+        const qR = query(collection(db,"reports"), orderBy("createdAt","desc"), limit(60));
+        const snapR = await getDocs(qR);
+        const reports = snapR.docs.map(d => ({ id:d.id, ...d.data() }));
+        $("#reportList").innerHTML = reports.length
+          ? reports.map(reportRowHTML).join("")
+          : `<div class="muted small">No reports.</div>`;
+        wireReportAdminButtons();
+      }catch(e){
+        $("#reportList").innerHTML = `<div class="muted small">${safe(e?.message || "Failed to load reports")}</div>`;
+      }
+
+      const input = $("#adminSearch");
+      const host = $("#adminResults");
+
+      input.addEventListener("keydown", async (e) => {
+        if(e.key !== "Enter") return;
+        const term = (input.value || "").trim().toLowerCase();
+        if(!term) return;
+
+        host.innerHTML = `<div class="muted small">Searching…</div>`;
+
+        try{
+          const snap = await getDocs(query(collection(db,"users"), limit(120)));
+          const users = snap.docs.map(d=>d.data())
+            .filter(u => (u.username||"").toLowerCase().includes(term))
+            .slice(0, 60);
+
+          host.innerHTML = users.length
+            ? users.map(adminUserRowHTML).join("")
+            : `<div class="muted small">No users found.</div>`;
+
+          wireAdminButtons();
+          wireClickableUsers();
+        }catch(e2){
+          host.innerHTML = `<div class="muted small">${safe(e2?.message || "Search failed")}</div>`;
+        }
+      });
+    }
+
+    function reportRowHTML(r){
+      const id = safe(r?.id || "");
+      const postId = safe(r?.postId || "");
+      const reason = safe(r?.reason || "");
+      const status = safe(r?.status || "open");
+      const who = safe(r?.reporterEmail || r?.reporterUid || "");
+      const owner = safe(r?.postOwnerUsername || r?.postOwnerUid || "");
+      const txt = safe((r?.postText || "").slice(0, 120));
+
+      return `
+        <div class="card" style="background:rgba(20,24,34,.55)">
+          <div class="row" style="justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
+            <div style="min-width:240px;flex:1">
+              <div style="font-weight:900">Report <span class="pill">${status}</span></div>
+              <div class="muted small">Post: <b>${postId}</b> • Owner: <b>${owner}</b></div>
+              <div class="muted small">Reporter: ${who}</div>
+              <div class="divider"></div>
+              <div class="small" style="white-space:pre-wrap">${txt}</div>
+              ${reason ? `<div class="hint">Reason: ${reason}</div>` : ``}
+            </div>
+
+            <div class="col" style="min-width:190px">
+              <button class="btn" data-adminclose="${id}">Close report</button>
+              <button class="btn danger" data-admindeletepost="${postId}">Delete post</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /* ✅ FIXED: THIS FUNCTION NOW CLOSES PROPERLY */
+    function wireReportAdminButtons(){
+      document.querySelectorAll("[data-adminclose]").forEach((btn) => {
+        if(btn.__wired) return;
+        btn.__wired = true;
+
+        btn.addEventListener("click", async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const rid = btn.getAttribute("data-adminclose");
+          if(rid) await adminCloseReport(rid);
+
+          renderAdmin();
+        });
+      });
+
+      document.querySelectorAll("[data-admindeletepost]").forEach((btn) => {
+        if (btn.__wired) return;
+        btn.__wired = true;
+
+        btn.addEventListener("click", async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const postId = btn.getAttribute("data-admindeletepost");
+          if (postId) await adminDeleteReportedPost(postId);
+
+          renderAdmin();
+        });
+      });
+    }
+
+    function adminUserRowHTML(u){
+      const uid = safe(u?.uid || "");
+      const username = safe(u?.username || "user");
+      const verified = u?.verified ? `<span class="verified">✓</span>` : "";
+      const bio = safe(u?.bio || "");
+      const btnText = u?.verified ? "Remove verify" : "Verify";
+      const btnClass = u?.verified ? "" : "primary";
+
+      return `
+        <div class="card" style="background:rgba(20,24,34,.55)">
+          <div class="row" style="justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
+            <div class="row" style="gap:10px;align-items:center">
+              ${avatarHTML(u, 46)}
+              <div>
+                <div style="font-weight:900">
+                  <span class="clickableUser" data-uid="${uid}">${username}</span>${verified}
+                </div>
+                <div class="muted small">${bio}</div>
+              </div>
+            </div>
+            <button class="btn ${btnClass}" data-verifyuid="${uid}">${btnText}</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function wireAdminButtons(){
+      document.querySelectorAll("[data-verifyuid]").forEach((btn) => {
+        if(btn.__wired) return;
+        btn.__wired = true;
+        btn.addEventListener("click", async () => {
+          const uid = btn.getAttribute("data-verifyuid");
+          if(!uid) return;
+
+          try{
+            const s = await getDoc(doc(db,"users", uid));
+            if(!s.exists()) return toast("User not found");
+            const cur = !!s.data().verified;
+
+            await updateDoc(doc(db,"users", uid), { verified: !cur, updatedAt: serverTimestamp() });
+            toast(!cur ? "Verified ✅" : "Verification removed");
+
+            if(currentUser?.uid === uid){
+              const s2 = await getDoc(doc(db,"users", uid));
+              if(s2.exists()) me = s2.data();
+            }
+
+            renderAdmin();
+          }catch(e){
+            toast(e?.message || "Verify failed");
+          }
+        });
+      });
+    }
+
+    async function openUserProfile(uid){
+      if(!uid) return;
+      try{
+        const uSnap = await getDoc(doc(db,"users", uid));
+        if(!uSnap.exists()) return toast("User not found");
+        const user = uSnap.data();
+
+        const [followers, following] = await Promise.all([countFollowers(uid), countFollowing(uid)]);
+        const showFollow = currentUser?.uid && currentUser.uid !== uid;
+        const followingNow = showFollow ? await isFollowing(currentUser.uid, uid) : false;
+
+        appEl.innerHTML = `
+          <div class="grid two">
+            <div class="card">
+              <div class="row" style="align-items:center">
+                ${avatarHTML(user, 64)}
+                <div style="min-width:0">
+                  <div style="font-weight:950;font-size:18px">
+                    ${safe(user.username || "user")}${user.verified ? `<span class="verified">✓</span>` : ""}
+                  </div>
+                  <div class="muted small">${safe(user.bio || "")}</div>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="row" style="justify-content:space-between;gap:10px;flex-wrap:wrap">
+                <div class="pill clickable" id="uFollowers">Followers: <b>${followers}</b></div>
+                <div class="pill clickable" id="uFollowing">Following: <b>${following}</b></div>
+                ${showFollow ? `<button class="btn ${followingNow ? "" : "primary"}" id="uFollowBtn">${followingNow ? "Following" : "Follow"}</button>` : ""}
+              </div>
+
+              <div class="divider"></div>
+              <button class="btn" id="backBtn">← Back</button>
+            </div>
+
+            <div class="card">
+              <div class="title">${safe(user.username || "user")}'s posts</div>
+              <div class="divider"></div>
+              <div id="uPosts" class="grid"><div class="muted small">Loading…</div></div>
+            </div>
+          </div>
+        `;
+
+        $("#backBtn").onclick = () => setRoute("feed");
+
+        $("#uFollowers").onclick = async () => {
+          const users = await listFollow(uid, "followers");
+          openModal(`
+            <div class="row" style="justify-content:space-between;align-items:center">
+              <div class="title">Followers</div>
+              <button class="btn" id="mClose">Close</button>
+            </div>
+            <div class="divider"></div>
+            <div class="grid">${users.length ? users.map(userRowHTML).join("") : `<div class="muted small">No followers yet.</div>`}</div>
+          `);
+          $("#mClose").onclick = closeModal;
+          await afterRenderCommon([]);
+        };
+
+        $("#uFollowing").onclick = async () => {
+          const users = await listFollow(uid, "following");
+          openModal(`
+            <div class="row" style="justify-content:space-between;align-items:center">
+              <div class="title">Following</div>
+              <button class="btn" id="mClose">Close</button>
+            </div>
+            <div class="divider"></div>
+            <div class="grid">${users.length ? users.map(userRowHTML).join("") : `<div class="muted small">Not following anyone yet.</div>`}</div>
+          `);
+          $("#mClose").onclick = closeModal;
+          await afterRenderCommon([]);
+        };
+
+        if(showFollow){
+          $("#uFollowBtn").onclick = async () => {
+            const now = await isFollowing(currentUser.uid, uid);
+            if(now){
+              await unfollowUser(uid);
+              toast("Unfollowed");
+            }else{
+              await followUser(uid);
+              toast("Followed ✅");
+            }
+            openUserProfile(uid);
+          };
+        }
+
+        try{
+          const qMine = query(collection(db,"posts"), where("uid","==", uid), orderBy("createdAt","desc"), limit(50));
+          const snap = await getDocs(qMine);
+          const postsRaw = snap.docs.map(d=>({id:d.id, ...d.data()}));
+          const posts = filterMutedBlocked(postsRaw);
+          $("#uPosts").innerHTML = posts.length ? posts.map(postCardHTML).join("") : `<div class="muted small">No posts yet.</div>`;
+          await hydrateAvatars(posts);
+          await markLikedStates(posts);
+          await afterRenderCommon(posts);
+        }catch{
+          $("#uPosts").innerHTML = `<div class="muted small">Failed to load posts.</div>`;
+        }
+
+        route = "profile";
+        highlightTabs();
+      }catch(e){
+        toast(e?.message || "Profile failed");
+      }
+    }
+
+    fab.addEventListener("click", async () => {
+      if(!currentUser?.uid) return toast("Login first");
+
+      openModal(`
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <div class="title">Create post</div>
+          <button class="btn" id="mClose">Close</button>
+        </div>
+        <div class="divider"></div>
+        <textarea id="pText" placeholder="What's happening?"></textarea>
+        <div class="divider"></div>
+        <div>
+          <div class="small muted">Optional image</div>
+          <input id="pImg" type="file" accept="image/*" />
+          <div class="hint">Image uploads to Firebase Storage, saves imageURL on the post.</div>
+        </div>
+        <div class="divider"></div>
+        <div class="row" style="justify-content:flex-end">
+          <button class="btn primary" id="pSend">Post</button>
+        </div>
+      `);
+
+      $("#mClose").onclick = closeModal;
+
+      $("#pSend").onclick = async () => {
+        const text = ($("#pText").value || "").trim();
+        const file = $("#pImg").files?.[0];
+
+        if(!text && !file) return toast("Write something or add an image.");
+
+        try{
+          let imageURL = "";
+          if(file){
+            const path = `posts/${currentUser.uid}/${Date.now()}_${file.name}`;
+            const r = ref(storage, path);
+            await uploadBytes(r, file);
+            imageURL = await getDownloadURL(r);
+          }
+
+          await addDoc(collection(db,"posts"), {
+            uid: currentUser.uid,
+            username: me?.username || "user",
+            displayName: me?.displayName || me?.username || "User",
+            verified: !!me?.verified,
+            photoURL: me?.photoURL || "",
+            text,
+            imageURL,
+            likeCount: 0,
+            commentCount: 0,
+            createdAt: serverTimestamp()
+          });
+
+          closeModal();
+          toast("Posted ✅");
+        }catch(e){
+          toast(e?.message || "Post failed");
+        }
+      };
+    });
+
+    onAuthStateChanged(auth, async (u) => {
+      currentUser = u;
+
+      if(!u){
+        me = null;
+        if(unsubFeed) { unsubFeed(); unsubFeed = null; }
+        if(unsubNotifs) { unsubNotifs(); unsubNotifs = null; }
+        setRoute("feed");
+        renderAuth();
+        return;
+      }
+
+      try{
+        await ensureUserDoc(u);
+        await computeAdmin();
+        await loadMyMutesBlocks();
+        toast("Signed in ✅");
+        installUpdates({ auth, db });
+        render();
+      }catch(e){
+        toast(e?.message || "Could not load profile.");
+        render();
+      }
+    });
+
+    setRoute("feed");
+</script>
+</body>
+</html>
