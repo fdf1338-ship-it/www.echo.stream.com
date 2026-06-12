@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Settings</title>
+    <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+<div class="topbar">
+    <div class="brand">Settings</div>
+    <div class="right">
+        <button class="soft" onclick="location.href='profile.html'">Back</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <div class="title">Account</div>
+        <div class="divider"></div>
+
+        <button class="btn" id="editProfileBtn" style="width:100%; margin-bottom:10px;">
+            Edit Profile
+        </button>
+
+        <button class="btn danger" id="logoutBtn" style="width:100%;">
+            Log out
+        </button>
+
+        <p id="settingsMsg" class="muted small" style="margin-top:10px;"></p>
+    </div>
+</div>
+
+<!-- ✅ IMPORTANT: do NOT load firebase.js here. settings.js imports it. -->
+<script type="module" src="./settings.js"></script>
+</body>
+</html>
