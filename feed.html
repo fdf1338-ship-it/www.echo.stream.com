@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>EchoStream - Feed</title>
+    <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+<div class="topbar">
+    <div class="brand">EchoStream</div>
+    <div class="right">
+        <span id="meBadge" class="badge"></span>
+        <button id="logoutBtn" class="soft">Log out</button>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- Composer -->
+    <div class="card composer">
+        <textarea id="postText" placeholder="What's happening?"></textarea>
+        <div class="row">
+            <button id="postBtn" class="primary">Post</button>
+            <span id="statusMsg" class="muted"></span>
+        </div>
+    </div>
+
+    <!-- Feed -->
+    <div id="feedList"></div>
+
+    <button class="soft" id="moreBtn" style="margin-top:12px; width:100%;">Load more</button>
+</div>
+
+<!-- Post menu (one global menu) -->
+<div id="menuBackdrop" class="backdrop hidden"></div>
+<div id="postMenu" class="menu hidden">
+    <button id="menuReport" class="menuItem">Report</button>
+    <button id="menuMute" class="menuItem">Mute user</button>
+    <button id="menuBlock" class="menuItem danger">Block user</button>
+    <button id="menuDelete" class="menuItem danger hidden">Delete post</button>
+    <button id="menuCancel" class="menuItem">Cancel</button>
+</div>
+
+<!-- Simple report modal -->
+<div id="reportModalBackdrop" class="backdrop hidden"></div>
+<div id="reportModal" class="modal hidden">
+    <h3>Report post</h3>
+    <textarea id="reportReason" placeholder="What’s the issue? (spam, harassment, etc.)"></textarea>
+    <div class="row">
+        <button id="sendReportBtn" class="primary">Send report</button>
+        <button id="cancelReportBtn" class="soft">Cancel</button>
+    </div>
+    <p id="reportMsg" class="muted"></p>
+</div>
+
+<!-- footer nav -->
+<div class="footerTabs">
+    <a class="tab active" href="feed.html">Home</a>
+    <a class="tab" href="profile.html">Profile</a>
+    <a class="tab" href="admin.html">Admin</a>
+</div>
+
+<script type="module" src="./feed.js"></script>
+</body>
+</html>
