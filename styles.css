@@ -1,0 +1,296 @@
+:root{
+  --bg:#0f1115;
+  --panel:#141822;
+  --card:#171c27;
+  --text:#e9edf7;
+  --muted:#9aa3b2;
+  --line:#273047;
+  --blue:#4f7cff;
+  --red:#ff4d4d;
+  --green:#28c76f;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+  --radius:18px;
+
+  /* layout constants */
+  --navH:74px; /* bottom nav height */
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial;
+  background:linear-gradient(180deg,#0b0d12 0%, #0f1115 60%, #0b0d12 100%);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+
+  /* iOS safe area */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+a{color:inherit;text-decoration:none}
+
+/* If your pages use .wrap, this guarantees content never hides under bottom nav */
+.wrap{
+  max-width:920px;
+  margin:0 auto;
+  padding:14px 14px calc(var(--navH) + 24px + env(safe-area-inset-bottom));
+}
+
+/* ---------- Topbar ---------- */
+.topbar{
+  position:sticky;top:0;z-index:10;
+  background:rgba(15,17,21,.92);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(39,48,71,.55);
+}
+.topbar-inner{
+  max-width:920px;margin:0 auto;
+  padding:12px 14px;
+  display:flex;align-items:center;gap:10px
+}
+.brand{font-weight:900;letter-spacing:.35px}
+.spacer{flex:1}
+
+.iconBtn{
+  width:42px;height:42px;border-radius:14px;
+  display:grid;place-items:center;
+  border:1px solid rgba(39,48,71,.8);
+  background:rgba(20,24,34,.8);
+  cursor:pointer;
+  user-select:none;
+  color:var(--text);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- Cards / UI ---------- */
+.panel{
+  background:rgba(20,24,34,.75);
+  border:1px solid rgba(39,48,71,.75);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+.card{
+  background:rgba(23,28,39,.85);
+  border:1px solid rgba(39,48,71,.75);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:14px;
+}
+.row{display:flex;gap:12px;align-items:center}
+.col{display:flex;flex-direction:column;gap:10px}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.title{font-size:16px;font-weight:900;margin:0}
+.h1{font-size:22px;font-weight:950;margin:0}
+.divider{height:1px;background:rgba(39,48,71,.7);margin:10px 0}
+
+/* ---------- Buttons / Inputs ---------- */
+.btn{
+  border:none;cursor:pointer;
+  padding:12px 14px;border-radius:14px;
+  font-weight:800;
+  background:rgba(39,48,71,.7);
+  color:var(--text);
+  border:1px solid rgba(39,48,71,.85);
+  -webkit-tap-highlight-color: transparent;
+}
+.btn.primary{background:var(--blue);border-color:rgba(79,124,255,.4)}
+.btn.danger{background:rgba(255,77,77,.2);border-color:rgba(255,77,77,.4);color:#ffd6d6}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+input, textarea{
+  width:100%;
+  background:rgba(20,24,34,.75);
+  border:1px solid rgba(39,48,71,.85);
+  color:var(--text);
+  border-radius:14px;
+  padding:12px 12px;
+  outline:none;
+}
+textarea{min-height:92px;resize:vertical}
+
+.pill{
+  padding:5px 10px;border-radius:999px;
+  background:rgba(39,48,71,.6);
+  border:1px solid rgba(39,48,71,.85);
+  font-size:12px;color:var(--muted);
+  display:inline-flex;align-items:center;gap:6px;
+}
+.verified{
+  display:inline-grid;place-items:center;
+  width:16px;height:16px;border-radius:999px;
+  background:rgba(79,124,255,.95);
+  color:white;font-size:11px;font-weight:900;
+  margin-left:6px;
+}
+.avatar{
+  width:44px;height:44px;border-radius:999px;
+  background:rgba(39,48,71,.8);
+  border:1px solid rgba(39,48,71,.9);
+  display:grid;place-items:center;
+  overflow:hidden;
+  flex:0 0 auto;
+  user-select:none;
+}
+.avatar img{width:100%;height:100%;object-fit:cover}
+
+/* ---------- Bottom nav ---------- */
+/* Works if you have .bottomnav-inner OR if you put buttons directly inside .bottomnav */
+.bottomnav{
+  position:fixed;left:0;right:0;bottom:0;z-index:20;
+  background:rgba(15,17,21,.92);
+  backdrop-filter:blur(10px);
+  border-top:1px solid rgba(39,48,71,.55);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Support both structures */
+.bottomnav-inner,
+.bottomnav{
+  max-width:920px;
+  margin:0 auto;
+}
+
+/* If you have .bottomnav-inner keep it as the flex row */
+.bottomnav-inner{
+  padding:10px 10px;
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+}
+
+/* If buttons are directly inside .bottomnav, make it flex too */
+.bottomnav > .tab{
+  margin:10px 10px;
+}
+.bottomnav{
+  /* don’t break if inner exists */
+}
+.bottomnav:not(:has(.bottomnav-inner)){
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  padding:10px 10px;
+}
+
+/* Tabs */
+.tab{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  min-height:54px;
+  padding:8px 0;
+  border-radius:14px;
+  color:var(--muted);
+  cursor:pointer;
+  user-select:none;
+  background:transparent;
+  border:1px solid transparent;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab.active{
+  color:var(--text);
+  background:rgba(39,48,71,.35);
+  border-color:rgba(39,48,71,.55);
+}
+.tab .ico{font-size:18px}
+
+/* ---------- Drawer ---------- */
+.drawer-backdrop{
+  position:fixed;inset:0;z-index:30;
+  background:rgba(0,0,0,.55);
+  display:none;
+}
+.drawer-backdrop.open{display:block}
+.drawer{
+  position:fixed;top:0;bottom:0;left:0;z-index:31;
+  width:min(320px,86vw);
+  background:rgba(20,24,34,.96);
+  border-right:1px solid rgba(39,48,71,.85);
+  padding:14px;
+  transform:translateX(-105%);
+  transition:.22s ease;
+  overflow:auto;
+}
+.drawer.open{transform:translateX(0)}
+.drawerLink{
+  padding:12px;border-radius:14px;
+  border:1px solid rgba(39,48,71,.8);
+  background:rgba(23,28,39,.6);
+  cursor:pointer;
+  margin-bottom:10px;
+  color:var(--text);
+  user-select:none;
+}
+
+/* ---------- Toast ---------- */
+.toast{
+  position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(var(--navH) + 18px + env(safe-area-inset-bottom));
+  z-index:50;
+  background:rgba(23,28,39,.95);
+  border:1px solid rgba(39,48,71,.85);
+  padding:10px 12px;border-radius:14px;
+  box-shadow:var(--shadow);
+  display:none;
+  max-width:min(680px,92vw);
+}
+.toast.show{display:block}
+
+/* ---------- Modal ---------- */
+.modal-backdrop{
+  position:fixed;inset:0;z-index:60;
+  background:rgba(0,0,0,.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+}
+.modal-backdrop.open{display:flex}
+.modal{
+  width:min(720px,94vw);
+  max-height:min(80vh,720px);
+  overflow:auto;
+  background:rgba(20,24,34,.98);
+  border:1px solid rgba(39,48,71,.85);
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  padding:14px;
+}
+
+/* ---------- FAB ---------- */
+#fab{
+  position:fixed;
+  right:20px;
+  bottom:calc(var(--navH) + 16px + env(safe-area-inset-bottom));
+  z-index:40;
+  width:64px; height:64px; border-radius:999px;
+  display:grid; place-items:center;
+  font-size:32px; font-weight:900;
+  box-shadow:0 12px 40px rgba(0,0,0,.45);
+}
+
+/* ---------- Post images / comments ---------- */
+.post-img{
+  width:100%;
+  margin-top:10px;
+  border-radius:16px;
+  border:1px solid rgba(39,48,71,.85);
+  overflow:hidden;
+  background:#0b0d12;
+}
+.post-img img{width:100%;display:block}
+
+.comment{
+  padding:10px;border-radius:14px;
+  background:rgba(20,24,34,.55);
+  border:1px solid rgba(39,48,71,.75);
+  margin-top:8px;
+}
+
+.linkish{cursor:pointer}
+.linkish:hover{text-decoration:underline}
