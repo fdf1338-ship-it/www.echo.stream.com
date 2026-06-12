@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Image Viewer</title>
+
+    <style>
+        body {
+          margin: 0;
+          background: #000;
+          overflow: hidden;
+          touch-action: none;
+        }
+
+        .topbar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 54px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 12px;
+          background: rgba(0,0,0,.6);
+          z-index: 10;
+        }
+
+        .btn {
+          background: rgba(30,30,30,.8);
+          color: #fff;
+          border: none;
+          padding: 8px 12px;
+          border-radius: 10px;
+          font-weight: 700;
+          cursor: pointer;
+        }
+
+        .viewer {
+          width: 100vw;
+          height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        img {
+          max-width: 100%;
+          max-height: 100%;
+          transform-origin: center center;
+          transition: transform .15s ease;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="topbar">
+    <button class="btn" onclick="closeViewer()">←</button>
+    <div style="font-weight:800;">Image</div>
+    <button class="btn" onclick="saveImage()">Save</button>
+</div>
+
+<div class="viewer" id="viewer">
+    <img id="img">
+</div>
+
+<script>
+    /* ------------------------------
+       Load image
+    -------------------------------- */
+    const params = new URLSearchParams(location.search);
+    const imageUrl = params.get("url");
+    const img = document.getElementById("img");
+    img.src = imageUrl;
+
+    /* ------------------------------
+       Zoom logic
+    -------------------------------- */
+    let scale = 1;
+    let lastScale = 1;
+    let startDistance = 0;
+    let startY = 0;
+    let dragging = false;
+
+    function distance(t1, t2) {
+      return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+    }
+
+    document.addEventListener("touchstart", e => {
+      if (e.touches.length === 2) {
+        startDistance = distance(e.touches[0], e.touches[1]);
+        lastScale = scale;
+      }
+      if (e.touches.length === 1) {
+        startY = e.touches[0].clientY;
+        dragging = true;
+      }
+    });
+
+    document.addEventListener("touchmove", e => {
+      if (e.touches.length === 2) {
+        const newDist = distance(e.touches[0], e.touches[1]);
+        scale = Math.min(Math.max(lastScale * (newDist / startDistance), 1), 4);
+        img.style.transform = `scale(${scale})`;
+      }
+
+      if (dragging && scale === 1) {
+        const deltaY = e.touches[0].clientY - startY;
+        if (deltaY > 120) closeViewer();
+      }
+    });
+
+    document.addEventListener("touchend", () => {
+      dragging = false;
+    });
+
+    /* ------------------------------
+       Double-tap zoom
+    -------------------------------- */
+    let lastTap = 0;
+    document.addEventListener("click", () => {
+      const now = Date.now();
+      if (now - lastTap < 300) {
+        scale = scale === 1 ? 2 : 1;
+        img.style.transform = `scale(${scale})`;
+      }
+      lastTap = now;
+    });
+
+    /* ------------------------------
+       Save image
+    -------------------------------- */
+    function saveImage() {
+      const a = document.createElement("a");
+      a.href = imageUrl;
+      a.download = "image.jpg";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    /* ------------------------------
+       Report image
+    -------------------------------- */
+    function reportImage() {
+      alert("Reported. Thank you.");
+    }
+
+    /* ------------------------------
+       Close
+    -------------------------------- */
+    function closeViewer() {
+      history.back();
+    }
+</script>
+
+</body>
+</html>
